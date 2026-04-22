@@ -70,8 +70,8 @@ function example_target(name)
     )
 end
 
-example_target('hello_world')
-example_target('print_cmdline')
-example_target('print_int')
-example_target('print_file')
-example_target('echo')
+example_target('01_hello_world')
+example_target('02_print_cmdline')
+example_target('02_print_int')
+example_target('03_print_file')
+example_target('04_echo')
