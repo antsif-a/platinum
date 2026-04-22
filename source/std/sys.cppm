@@ -1,0 +1,194 @@
+module;
+// fuck it, struct stat is too system-specific
+#include <sys/stat.h>
+
+export module std.sys;
+
+import std.types;
+
+enum {
+    SYS_read,
+    SYS_write,
+    SYS_open,
+    SYS_close,
+    SYS_stat,
+    SYS_fstat,
+    SYS_lstat,
+    SYS_poll,
+    SYS_lseek,
+    SYS_mmap,
+    SYS_mprotect,
+    SYS_munmap,
+    // ...
+    SYS_exit = 60
+};
+
+export namespace sys {
+    enum struct error {
+        none,
+        not_permitted,
+        no_such_file,
+        no_such_process,
+        interrupted,
+        io,
+        no_such_device_or_address,
+        bad_argument_list,
+        exec_format_error,
+        bad_file_number,
+        no_child_process,
+        try_again,
+        out_of_memory,
+        permission_denied,
+        bad_address,
+        not_block_device,
+        busy,
+        file_exists,
+        cross_device_link,
+        no_such_device,
+        not_directory,
+        is_directory,
+        invalid_argument,
+        file_table_overflow,
+        too_many_open_files,
+        not_a_typewriter,
+        text_busy,
+        file_too_large,
+        no_space_left,
+        illegal_seek,
+        read_only_fs,
+        too_many_links,
+        broken_pipe,
+        math_domain,
+        math_range
+    };
+
+    /* --- read / write --- */
+    enum stdio : int {
+        stdin, stdout, stderr
+    };
+
+    /* --- stat --- */
+    using stat_info = struct stat;
+#if 0
+    struct stat_info {
+        dev_t st_dev;
+        ino_t st_ino;
+        nlink_t st_nlink;
+        mode_t st_mode;
+        uid_t st_uid;
+        gid_t st_gid;
+        int __pad0;
+        dev_t st_rdev;
+        off_t st_size;
+        blksize_t st_blksize;
+        blkcnt_t st_blocks;
+        time_t st_atime;
+        unsigned long st_atimensec;
+        time_t st_mtime;
+        unsigned long st_mtimensec;
+        time_t st_ctime;
+        unsigned long st_ctimensec;
+        signed long __glibc_reserved[3];
+    };
+#endif
+
+    /* --- open --- */
+    enum open_flag : int {
+        open_rdonly    = 0,
+        open_wronly    = 1,
+        open_rdwr      = 2,
+        open_creat     = 0100,
+        open_excl      = 0200,
+        open_noctty    = 0400,
+        open_trunc     = 01000,
+        open_append    = 02000,
+        open_nonblock  = 04000,
+        open_directory = 0200000,
+        open_nofollow  = 0400000,
+        open_cloexec   = 02000000,
+    };
+
+    enum open_mode : mode_t {
+        // Owner permissions
+        open_irusr = 0400,   // Read by owner
+        open_iwusr = 0200,   // Write by owner
+        open_ixusr = 0100,   // Execute/search by owner
+
+        // Group permissions
+        open_irgrp = 0040,   // Read by group
+        open_iwgrp = 0020,   // Write by group
+        open_ixgrp = 0010,   // Execute/search by group
+
+        // Others permissions
+        open_iroth = 0004,   // Read by others
+        open_iwoth = 0002,   // Write by others
+        open_ixoth = 0001,   // Execute/search by others
+
+        // Special bits
+        open_isuid = 04000,  // Set-user-ID on execution
+        open_isgid = 02000,  // Set-group-ID on execution
+        open_isvtx = 01000   // Sticky bit (restricts deletion)
+    };
+};
+
+export {
+    namespace sys { 
+        #define rax "a"
+        #define rbx "b"
+        #define rcx "c"
+        #define rdx "d"
+        #define rsi "S"
+        #define rdi "D"
+        #define r "r"
+        #define out "="
+        
+        #define syscall(return_type, nd, ...)       \
+            return_type ret;            \
+            asm volatile ("syscall"     \
+                    : out rax(ret)      \
+                    : rax(nd), __VA_ARGS__       \
+                    : "%rcx", "%r11", "memory");  \
+            return ret;
+
+        ssize_t read(int fd, char * buffer, size_t n) {
+            syscall(ssize_t, SYS_read, rdi(fd), rsi(buffer), rdx(n));
+        }
+
+        ssize_t write(int fd, const char * buffer, size_t n) {
+            syscall(ssize_t, SYS_write, rdi(fd), rsi(buffer), rdx(n));
+        }
+
+        int open(const char *pathname, int flags, mode_t mode) {
+            syscall(int, SYS_open, rdi(pathname), rsi(flags), rdx(mode));
+        }
+
+        int close(int fd) {
+            syscall(int, SYS_close, rdi(fd));
+        }
+
+        int stat(const char * path, stat_info * statbuf);
+        int fstat(int fd, stat_info * statbuf) {
+            syscall(int, SYS_fstat, rdi(fd), rsi(statbuf));
+        }
+
+        int lstat(const char * path, stat_info * statbuf);
+
+        /*
+        void * mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset) {
+            register long r10 asm("r10") = flags;
+            register long r8  asm("r8")  = fd;
+            register long r9  asm("r9")  = offset;
+
+            syscall(void *, SYS_mmap, rdi(addr), rsi(length), rdx(prot), r(r10), r(r8), r(r9));
+        }
+
+        int mprotect(void *addr, size_t len, int prot) asm("sys_mprotect");
+        int munmap(void *addr, size_t length) asm("sys_munmap");
+        */
+
+        [[noreturn]] void exit(int status) {
+            asm volatile ("syscall" :: rax(SYS_exit), rdi(status) :);
+            __builtin_unreachable();
+        }
+    };
+};
