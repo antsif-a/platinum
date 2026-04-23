@@ -1,35 +1,30 @@
+import stdc;
 import std.io;
 import std.string;
 import std.array;
 import std.types;
 import std.view;
 
-int main(int argc, char * argv[], char * envp[]) {
+int main(size_t argc, char * argv[], char * envp[]) {
     auto args = array<str>(argc);
-    for (int i = 0; i < argc; ++i) {
-        args.push(str(argv[i]));
-    }
+    while (args.count() < args.capacity())
+        args.push_back_unchecked(argv[args.count()]); 
 
-    auto env = array<str>(arrlen(envp));
-    for (size_t i = 0; i < env.capacity(); ++i) {
-        env.push(str(envp[i]));
-    }
+    auto envs = array<str>(arrlen((void **) envp));
+    while (envs.count() < envs.capacity())
+        envs.push_back_unchecked(envp[envs.count()]);
 
     print("cmdline: ");
-    for (str arg : args) {
-        print(arg);
-        print(" ");
-    }
-    println();
+    println(const_view<str>(args));
 
-    for (str env_str : env) {
-        auto idx = env_str.find('=');
-        if (idx.error == str::error::not_found)
+    for (str env_str : envs) {
+        int idx = env_str.find('=').or_else(-1);
+        if (idx == -1)
             continue;
-        auto key = str(env_str.data, *idx);
+        auto key = str(env_str.data, idx);
         if (key == "USER"){
-            print("user = ");
-            println(str(key.end() + 1));
+            println("user = ", str(key.end() + 1, env_str.size - idx));
+            return 0;
         }
     }
 

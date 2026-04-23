@@ -32,12 +32,27 @@ export {
     using time_t     = signed   long;
     using blksize_t  = signed   long;
     using ssize_t    = signed   long int;
+
+    struct timespec {
+        time_t tv_sec;
+        long   tv_nsec;
+    };
 };
 
 /* --- type traits --- */
 export {
     template <class T>
     T declval();
+
+    /* --- boolean types --- */
+    struct false_type {
+        static constexpr bool value = false;
+    };
+
+    struct true_type {
+        static constexpr bool value = true;
+    };
+
 
     template <class From, class To>
     concept convertible_to = requires {
@@ -63,18 +78,33 @@ export {
 
     /* --- is_same --- */
     template <class A, class B>
-    struct is_same {
-        static constexpr bool value = false;
-    };
+    struct is_same : false_type {};
 
     template <class T>
-    struct is_same<T, T> {
-        static constexpr bool value = true;
-    };
+    struct is_same<T, T> : true_type {};
 
     template <class A, class B>
     inline constexpr bool is_same_v = is_same<A, B>::value;
     /* --- */
+
+    /* --- is_pointer --- */
+    template<class T>
+    struct is_pointer : false_type {};
+
+    template<class T>
+    struct is_pointer<T *> : true_type {};
+
+    template<class T>
+    struct is_pointer<T * const> : true_type {};
+
+    template<class T>
+    struct is_pointer<T * volatile> : true_type {};
+
+    template<class T>
+    struct is_pointer<T * const volatile> : true_type {};
+
+    template<class T>
+    inline constexpr bool is_pointer_v = is_pointer<T>::value;
 };
 
 /* --- additional integral types --- */

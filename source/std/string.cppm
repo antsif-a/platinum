@@ -32,35 +32,39 @@ export class string {
             _data = new char[_length + 1] {};
         }
 
-        const char * data() {
+        const char * data() const {
             return _data;
         } 
 
-        size_t length() {
+        size_t length() const {
             return _length;
         }
 
-        char & operator[](size_t n) {
+        char operator[](size_t n) {
             return _data[n];
         }
 
-        const char * begin() {
+        char operator[](size_t n) const {
+            return _data[n];
+        }
+
+        const char * begin() const {
             return _data;
         }
         
-        const char * end() {
+        const char * end() const {
             return _data + _length;
         }
 
-        const char * c_str() {
+        const char * c_str() const {
             return _data;
         }
 
-        operator str() {
+        operator str() const {
             return str(_data, _length);
         }
 
-        operator buffer() {
+        operator buffer() const {
             return buffer(_data, _length);
         }
  };

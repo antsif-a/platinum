@@ -1,7 +1,8 @@
 export module std.result;
 
 import std.types;
-import std.panic;
+import std.panic; 
+import std.sys;
 
 export template <class T, class E>
 struct result {
@@ -29,4 +30,25 @@ struct result {
             panic(message);
         return value;
     }
+
+    T or_else(const T & fallback) {
+        if (type == Type::Error)
+            return fallback;
+        return value;
+    }
 };
+
+export namespace sys {
+    template <class T>
+    using result = ::result<T, sys::error>;
+
+    template <class T>
+    ::result<T, sys::error> make_result(int ret) {
+        if (ret < 0) {
+            return static_cast<sys::error>(-ret);
+        } else {
+            return static_cast<T>(ret);
+        }
+    }
+};
+

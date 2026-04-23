@@ -29,9 +29,9 @@ target('std')
     add_files(
         'source/std/c/memory.c',
         'source/std/c/string.c',
+        'source/std/c/array.c',
         'source/std/c/module.cppm',
         'source/std/types.cppm',
-        'source/std/sys.asm',
         'source/std/sys.cppm',
         'source/std/string.cppm',
         'source/std/array.cppm',

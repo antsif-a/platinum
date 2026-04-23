@@ -1,6 +1,4 @@
 module;
-// fuck it, struct stat is too system-specific
-#include <sys/stat.h>
 
 export module std.sys;
 
@@ -19,6 +17,8 @@ enum {
     SYS_mmap,
     SYS_mprotect,
     SYS_munmap,
+    SYS_readv = 19,
+    SYS_writev,
     // ...
     SYS_exit = 60
 };
@@ -68,29 +68,26 @@ export namespace sys {
     };
 
     /* --- stat --- */
-    using stat_info = struct stat;
-#if 0
-    struct stat_info {
+    // credit: https://git.musl-libc.org/cgit/musl/tree/arch/x86_64/bits/stat.h
+    struct stat {
         dev_t st_dev;
         ino_t st_ino;
         nlink_t st_nlink;
+
         mode_t st_mode;
         uid_t st_uid;
         gid_t st_gid;
-        int __pad0;
+        unsigned int    __pad0;
         dev_t st_rdev;
         off_t st_size;
         blksize_t st_blksize;
         blkcnt_t st_blocks;
-        time_t st_atime;
-        unsigned long st_atimensec;
-        time_t st_mtime;
-        unsigned long st_mtimensec;
-        time_t st_ctime;
-        unsigned long st_ctimensec;
-        signed long __glibc_reserved[3];
+
+        timespec st_atim;
+        timespec st_mtim;
+        timespec st_ctim;
+        long __unused[3];
     };
-#endif
 
     /* --- open --- */
     enum open_flag : int {
@@ -129,6 +126,13 @@ export namespace sys {
         open_isgid = 02000,  // Set-group-ID on execution
         open_isvtx = 01000   // Sticky bit (restricts deletion)
     };
+
+
+    /* --- readv / writev --- */
+    struct iovec {
+        void * iov_base;    /* Starting address */
+        size_t iov_len;     /* Number of bytes to transfer */
+    };
 };
 
 export {
@@ -150,12 +154,12 @@ export {
                     : "%rcx", "%r11", "memory");  \
             return ret;
 
-        ssize_t read(int fd, char * buffer, size_t n) {
-            syscall(ssize_t, SYS_read, rdi(fd), rsi(buffer), rdx(n));
+        ssize_t read(int fd, char * buf, size_t n) {
+            syscall(ssize_t, SYS_read, rdi(fd), rsi(buf), rdx(n));
         }
 
-        ssize_t write(int fd, const char * buffer, size_t n) {
-            syscall(ssize_t, SYS_write, rdi(fd), rsi(buffer), rdx(n));
+        ssize_t write(int fd, const char * buf, size_t n) {
+            syscall(ssize_t, SYS_write, rdi(fd), rsi(buf), rdx(n));
         }
 
         int open(const char *pathname, int flags, mode_t mode) {
@@ -166,12 +170,12 @@ export {
             syscall(int, SYS_close, rdi(fd));
         }
 
-        int stat(const char * path, stat_info * statbuf);
-        int fstat(int fd, stat_info * statbuf) {
+        int stat(const char * path, struct stat * statbuf);
+        int fstat(int fd, struct stat * statbuf) {
             syscall(int, SYS_fstat, rdi(fd), rsi(statbuf));
         }
 
-        int lstat(const char * path, stat_info * statbuf);
+        int lstat(const char * path, struct stat * statbuf);
 
         /*
         void * mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset) {
@@ -185,6 +189,14 @@ export {
         int mprotect(void *addr, size_t len, int prot) asm("sys_mprotect");
         int munmap(void *addr, size_t length) asm("sys_munmap");
         */
+
+        size_t readv(int fd, const iovec * vec, size_t vlen) {
+            syscall(size_t, SYS_readv, rdi(fd), rsi(vec), rdx(vlen));
+        }
+
+        size_t writev(int fd, const iovec * vec, size_t vlen) {
+            syscall(size_t, SYS_writev, rdi(fd), rsi(vec), rdx(vlen));
+        }
 
         [[noreturn]] void exit(int status) {
             asm volatile ("syscall" :: rax(SYS_exit), rdi(status) :);

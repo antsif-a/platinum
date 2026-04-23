@@ -12,10 +12,11 @@ export extern "C" {
 
     void * heap_alloc(size_t size);
     void heap_free(void * ptr);
-    /* --- */
 
     /* --- string.c --- */
     size_t strlen(const char * st);
-    /* --- */
+
+    /* --- array.c. --- */
+    size_t arrlen(void * arr[]);
 };
 

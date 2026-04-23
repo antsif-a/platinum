@@ -4,9 +4,10 @@ import stdc;
 import std.types;
 import std.result;
 
-export extern "C" { 
-    
-};
+/*
+ * view, const_view, str and buffer have public fields (and are marked as structs)
+ * to emphasize their lightweight and trivial copyable nature
+ */
 
 /*
  * represents a modifiable view over a contiguous and homogeneous area of memory
@@ -15,17 +16,21 @@ export extern "C" {
  */
 export template <typename T> struct view {
     T * data;
-    size_t size;
+    const size_t size;
 
-    T * begin() {
+    T * begin() const {
         return data;
     }
 
-    T * end() {
+    T * end() const {
         return data + size;
     }
 
     T & operator[](size_t n) {
+        return data[n];
+    }
+
+    const T & operator[](size_t n) const {
         return data[n];
     }
 };
@@ -37,17 +42,17 @@ export template <typename T> struct view {
  */
 export template <typename T> struct const_view {
     const T * data;
-    size_t size;
+    const size_t size;
 
-    const T * begin() {
+    const T * begin() const {
         return data;
     }
 
-    const T * end() {
+    const T * end() const {
         return data + size;
     }
 
-    const T & operator[](size_t n) {
+    const T & operator[](size_t n) const {
         return data[n];
     }
 };
@@ -79,7 +84,7 @@ export struct str {
     str(const char * p): data(p), size(strlen(p)) {}
 
     template <size_t N>
-    bool operator == (const char (&p)[N]) {
+    bool operator == (const char (&p)[N]) const {
         if (size != N - 1)
             return false;
         for (size_t i = 0; i < N - 1; ++i)
@@ -92,15 +97,19 @@ export struct str {
         return data[n];
     }
 
-    const char * begin() {
+    char operator[](size_t n) const {
+        return data[n];
+    }
+
+    const char * begin() const {
         return data;
     }
     
-    const char * end() {
+    const char * end() const {
         return data + size;
     }
 
-    result<size_t, error> find(char c) {
+    result<size_t, error> find(char c) const {
         size_t i = 0;
         while (data[i] != c) {
             if (data[i] == '\0')

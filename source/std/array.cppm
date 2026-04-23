@@ -5,13 +5,6 @@ import std.types;
 import std.memory;
 import std.view;
 
-export template<typename T> size_t arrlen(T * arr) {
-    size_t i = 0;
-    while (arr[i])
-        ++i;
-    return i;
-}
-
 /*
  * a dynamic linear array
  * - manages memory
@@ -28,6 +21,11 @@ public:
     array(size_t _capacity) : _count(0), _capacity(_capacity) {
         elements = new T[_capacity]; 
     }
+    array(T * elements) requires is_pointer_v<T> {
+        _count = arrlen(static_cast<void * []>(elements));
+        _capacity = _count;
+        memcpy(this->elements, elements, _count);
+    }
 
     void resize(size_t new_capacity) {
         if (_capacity == 0) {
@@ -41,7 +39,11 @@ public:
         }
     }
 
-    void push(T element) {
+    void push_back_unchecked(const T& element) {
+        elements[_count++] = element;
+    }
+
+    void push_back(const T& element) {
         if (_count == _capacity)
             resize(_capacity * 2);
         elements[_count++] = element;
@@ -51,24 +53,36 @@ public:
         return elements[n];
     }
 
-    T * data() {
+    const T & operator[](size_t n) const {
+        return elements[n];
+    }
+
+    T * data() const {
         return elements;
     }
 
-    T * begin() {
+    T * begin() const {
         return elements;
     }
 
-    T * end() {
+    T * end() const {
         return elements + _count;
     }
 
-    size_t count() {
+    size_t count() const {
         return _count;
     }
 
-    size_t capacity() {
+    size_t capacity() const {
         return _capacity;
+    }
+
+    operator view<T>() {
+        return view(elements, _count);
+    }
+
+    operator const_view<T>() {
+        return const_view(elements, _count);
     }
 };
 

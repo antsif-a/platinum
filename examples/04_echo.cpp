@@ -10,7 +10,7 @@ int main() {
     
     for (;;) {
         print("> ");
-        auto read_size = read(sys::stdin, arr);
+        auto read_size = input(arr);
         if (!read_size) {
             string errcode = format((int) read_size.error); 
             print("failed to read, error code is");
