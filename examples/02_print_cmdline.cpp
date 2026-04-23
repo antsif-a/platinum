@@ -17,13 +17,13 @@ int main(size_t argc, char * argv[], char * envp[]) {
     print("cmdline: ");
     println(const_view<str>(args));
 
-    for (str env_str : envs) {
-        int idx = env_str.find('=').or_else(-1);
+    for (str env : envs) {
+        int idx = env.find('=').or_else(-1);
         if (idx == -1)
             continue;
-        auto key = str(env_str.data, idx);
+        auto key = str(env.data, idx);
         if (key == "USER"){
-            println("user = ", str(key.end() + 1, env_str.size - idx));
+            println("user = ", str(key.end() + 1, env.size - idx));
             return 0;
         }
     }

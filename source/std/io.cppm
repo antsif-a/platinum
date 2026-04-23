@@ -8,8 +8,19 @@ import std.string;
 import std.array;
 
 export {
+    using enum sys::stdio;
+
     inline sys::result<size_t> read(int fd, const buffer buf) {
         return sys::make_result<size_t>(sys::read(fd, buf.data, buf.size));
+    }
+
+    inline sys::result<size_t> read(int fd, string &st) {
+        auto res = sys::make_result<size_t>(sys::read(fd, st.data(), st.capacity()));
+        if (!res)
+            return res;
+        st.set_length_unsafe(res.value);
+        st[res.value] = '\0';
+        return res;
     }
 
     inline sys::result<size_t> write(int fd, str st) {
@@ -77,21 +88,28 @@ export {
 
     template <typename ...Args>
     inline sys::result<size_t> print(Args const &...args) {
-        return write(sys::stdout, args...);
+        return write(stdout, args...);
     }
 
     inline sys::result<size_t> println(const const_view<str> arr) {
-        return writeln(sys::stdout, arr);
+        return writeln(stdout, arr);
     }
 
     template <typename ...Args>
     inline sys::result<size_t> println(Args const &...args) {
-        return writeln(sys::stdout, args...);
+        return writeln(stdout, args...);
     } 
 
     inline sys::result<size_t> input(const buffer buf) {
-        return read(sys::stdin, buf);
+        return read(stdin, buf);
     }
+
+    inline sys::result<size_t> input(string &st) {
+        return read(stdin, st);
+    }
+
+    using enum sys::open_flag;
+    using enum sys::open_mode;
 
     inline sys::result<int> open(const string &path, int flags, mode_t mode) {
         return sys::make_result<int>(sys::open(path.c_str(), flags, mode));

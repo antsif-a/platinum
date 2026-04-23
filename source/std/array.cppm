@@ -113,6 +113,14 @@ export template <typename T, size_t N> class tuple {
             return N;
         }
 
+        T & operator[](size_t n) {
+            return elements[n];
+        }
+
+        const T & operator[](size_t n) const {
+            return elements[n];
+        }
+
         operator buffer() requires is_same_v<T, char> {
             return buffer(elements, N);
         }

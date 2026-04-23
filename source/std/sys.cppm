@@ -3,6 +3,7 @@ module;
 export module std.sys;
 
 import std.types;
+import std.sys.error;
 
 enum {
     SYS_read,
@@ -24,43 +25,7 @@ enum {
 };
 
 export namespace sys {
-    enum struct error {
-        none,
-        not_permitted,
-        no_such_file,
-        no_such_process,
-        interrupted,
-        io,
-        no_such_device_or_address,
-        bad_argument_list,
-        exec_format_error,
-        bad_file_number,
-        no_child_process,
-        try_again,
-        out_of_memory,
-        permission_denied,
-        bad_address,
-        not_block_device,
-        busy,
-        file_exists,
-        cross_device_link,
-        no_such_device,
-        not_directory,
-        is_directory,
-        invalid_argument,
-        file_table_overflow,
-        too_many_open_files,
-        not_a_typewriter,
-        text_busy,
-        file_too_large,
-        no_space_left,
-        illegal_seek,
-        read_only_fs,
-        too_many_links,
-        broken_pipe,
-        math_domain,
-        math_range
-    };
+    using error = sys::error;
 
     /* --- read / write --- */
     enum stdio : int {

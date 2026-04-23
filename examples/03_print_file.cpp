@@ -1,8 +1,5 @@
-import std.sys;
-import std.types;
 import std.io;
 import std.string;
-import std.result;
 
 int main(int argc, char * argv[]) {
     if (argc < 2) {
@@ -10,7 +7,7 @@ int main(int argc, char * argv[]) {
         return 1;
     }
 
-    int fd = open(string(argv[1]), sys::open_rdonly, 0)
+    int fd = open(string(argv[1]), open_rdonly, 0)
         .expect("couldn't open file");
 
     file_status statbuf;

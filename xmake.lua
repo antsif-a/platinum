@@ -33,6 +33,7 @@ target('std')
         'source/std/c/module.cppm',
         'source/std/types.cppm',
         'source/std/sys.cppm',
+        'source/std/sys-error.cppm',
         'source/std/string.cppm',
         'source/std/array.cppm',
         'source/std/view.cppm',

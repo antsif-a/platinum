@@ -31,6 +31,12 @@ struct result {
         return value;
     }
 
+    T expect() {
+        if (type == Type::Error)
+            panic(error);
+        return value;
+    }
+
     T or_else(const T & fallback) {
         if (type == Type::Error)
             return fallback;
