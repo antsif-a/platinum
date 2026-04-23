@@ -5,7 +5,7 @@ import std.array;
 import std.types;
 import std.view;
 
-int main(size_t argc, char * argv[], char * envp[]) {
+int main(int argc, char * argv[], char * envp[]) {
     auto args = array<str>(argc);
     while (args.count() < args.capacity())
         args.push_back_unchecked(argv[args.count()]); 

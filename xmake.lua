@@ -6,6 +6,7 @@ set_optimize("fastest")
 add_cxflags(
     '-Wall', '-Wextra', '-Werror', '-Wno-main', '-Wno-reserved-module-identifier',
     '-ggdb',
+    '-fno-asynchronous-unwind-tables', '-fno-unwind-tables',
     '-ffunction-sections', '-fdata-sections',
     '-fno-exceptions', '-fno-stack-protector',
     '-fno-strict-aliasing',
@@ -19,9 +20,12 @@ add_cxxflags(
 
 add_ldflags(
     '-nostdlib', '-nostdlib++',
+    '-static',
     '-Wl,--gc-sections',
+    '-Wl,--build-id=none',
     {force = true}
 )
+add_ldflags('-Wl,-z,noseparate-code', '-Wl,-z,norelro')
 
 target('std')
     set_kind('static')
