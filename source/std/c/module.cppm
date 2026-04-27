@@ -1,22 +1,13 @@
 module;
 #include <stddef.h>
+#include <stdint.h>
 
 export module stdc;
 
 export extern "C" {
-    /* --- memory.c --- */
-    void * memcpy(void * dest, const void * src, size_t n);
-    void * memmove(void * dest, const void * src, size_t n);
-    void * memset(void * ptr, int value, size_t n);
-    int memcmp(const void * s1, const void * s2, size_t n);
-
-    void * heap_alloc(size_t size);
-    void heap_free(void * ptr);
-
-    /* --- string.c --- */
-    size_t strlen(const char * st);
-
-    /* --- array.c. --- */
-    size_t arrlen(void * arr[]);
+    #include <std/c/memory.h>
+    #include <std/c/string.h>
+    #include <std/c/byteswap.h>
+    #include <std/c/network.h>
 };
 

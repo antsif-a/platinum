@@ -11,6 +11,7 @@ _start:
     pop  rdi                      ; argc
     mov  rsi, rsp                 ; argv[]
     lea  rdx, [rsp + 8 * rdi + 8] ; envp[]
+    and rsp, -16
     call _start_cpp
 
     mov rdi, rax

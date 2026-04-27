@@ -4,7 +4,10 @@ set_policy("build.optimization.lto", true)
 set_optimize("fastest")
 
 add_cxflags(
-    '-Wall', '-Wextra', '-Werror', '-Wno-main', '-Wno-reserved-module-identifier',
+    '-Wall', '-Wextra', '-Werror',
+    '-Wno-main',
+    '-Wno-reserved-module-identifier',
+    '-Wno-include-angled-in-module-purview',
     '-ggdb',
     '-fno-asynchronous-unwind-tables', '-fno-unwind-tables',
     '-ffunction-sections', '-fdata-sections',
@@ -21,6 +24,7 @@ add_cxxflags(
 add_ldflags(
     '-nostdlib', '-nostdlib++',
     '-static',
+--    '-Wl,--strip-all',
     '-Wl,--gc-sections',
     '-Wl,--build-id=none',
     {force = true}
@@ -33,9 +37,11 @@ target('std')
     add_files(
         'source/std/c/memory.c',
         'source/std/c/string.c',
-        'source/std/c/array.c',
+        'source/std/c/byteswap.c',
+        'source/std/c/network.c',
         'source/std/c/module.cppm',
         'source/std/types.cppm',
+        'source/std/posix.cppm',
         'source/std/sys.cppm',
         'source/std/sys-error.cppm',
         'source/std/string.cppm',
@@ -46,6 +52,8 @@ target('std')
         'source/std/math.cppm',
         'source/std/result.cppm',
         'source/std/panic.cppm',
+        'source/std/fs.cppm',
+        'source/std/net.cppm',
         {public = true}
     )
     add_files(
@@ -80,3 +88,5 @@ example_target('02_print_cmdline')
 example_target('02_print_int')
 example_target('03_print_file')
 example_target('04_echo')
+example_target('05_echo_server_raw')
+example_target('05_echo_server')

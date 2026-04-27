@@ -1,11 +1,13 @@
 export module std.io;
 
+import std.sys;
 import std.result;
 import std.types;
 import std.view;
-import std.sys;
 import std.string;
 import std.array;
+
+inline constexpr size_t max_runtime_iovcnt = 8;
 
 export {
     using enum sys::stdio;
@@ -23,6 +25,14 @@ export {
         return res;
     }
 
+    inline sys::result<size_t> input(const buffer buf) {
+        return read(stdin, buf);
+    }
+
+    inline sys::result<size_t> input(string &st) {
+        return read(stdin, st);
+    } 
+
     inline sys::result<size_t> write(int fd, str st) {
         return sys::make_result<size_t>(sys::write(fd, st.data, st.size));
     }
@@ -35,7 +45,7 @@ export {
         if (n == 1)
             return write(fd, arr[0]);
 
-        sys::iovec iov[n];
+        sys::iovec iov[max_runtime_iovcnt];
         for (size_t i = 0; i < n; ++i) {
             iov[i].iov_base = (void *) arr[i].data;
             iov[i].iov_len  = arr[i].size;
@@ -44,9 +54,26 @@ export {
         return sys::make_result<size_t>(sys::writev(fd, iov, n));
     }
 
-    template <typename... Args>
-    inline sys::result<size_t> write(int fd, Args const &...args) {
-        constexpr size_t n = sizeof...(Args);
+    inline sys::result<size_t> writeln(int fd, const const_view<str> arr) {
+        const size_t n = arr.size;
+
+        if (n == 0)
+            return write(fd, str("\n"));
+
+        sys::iovec iov[max_runtime_iovcnt];
+        for (size_t i = 0; i < n; ++i) {
+            iov[i].iov_base = (void *) arr[i].data;
+            iov[i].iov_len  = arr[i].size;
+        }
+        iov[n].iov_base = (void *) "\n";
+        iov[n].iov_len  = 1;
+
+        return sys::make_result<size_t>(sys::writev(fd, iov, n + 1));
+    }
+
+    template <typename... T> requires (convertible_to<T, str> && ...)
+    inline sys::result<size_t> write(int fd, T const &...args) {
+        constexpr size_t n = sizeof...(T);
 
         if constexpr (n == 0)
             return 0;
@@ -64,30 +91,13 @@ export {
         return sys::make_result<size_t>(sys::writev(fd, iov, n));
     }
 
-    inline sys::result<size_t> writeln(int fd, const const_view<str> arr) {
-        const size_t n = arr.size;
-
-        if (n == 0)
-            return write(fd, str("\n"));
-
-        sys::iovec iov[n + 1];
-        for (size_t i = 0; i < n; ++i) {
-            iov[i].iov_base = (void *) arr[i].data;
-            iov[i].iov_len  = arr[i].size;
-        }
-        iov[n].iov_base = (void *) "\n";
-        iov[n].iov_len  = 1;
-
-        return sys::make_result<size_t>(sys::writev(fd, iov, n + 1));
-    }
-
-    template <typename... Args>
-    inline sys::result<size_t> writeln(int fd, Args const &...args) {
+    template <typename... T> requires (convertible_to<T, str> && ...)
+    inline sys::result<size_t> writeln(int fd, T const &...args) {
         return write(fd, args..., str("\n"));
     }
 
-    template <typename ...Args>
-    inline sys::result<size_t> print(Args const &...args) {
+    template <typename ...T> requires (convertible_to<T, str> && ...)
+    inline sys::result<size_t> print(T const &...args) {
         return write(stdout, args...);
     }
 
@@ -95,41 +105,12 @@ export {
         return writeln(stdout, arr);
     }
 
-    template <typename ...Args>
-    inline sys::result<size_t> println(Args const &...args) {
+    template <typename ...T> requires (convertible_to<T, str> && ...)
+    inline sys::result<size_t> println(T const &...args) {
         return writeln(stdout, args...);
-    } 
-
-    inline sys::result<size_t> input(const buffer buf) {
-        return read(stdin, buf);
-    }
-
-    inline sys::result<size_t> input(string &st) {
-        return read(stdin, st);
-    }
-
-    using enum sys::open_flag;
-    using enum sys::open_mode;
-
-    inline sys::result<int> open(const string &path, int flags, mode_t mode) {
-        return sys::make_result<int>(sys::open(path.c_str(), flags, mode));
-    }
+    }  
 
     inline sys::result<int> close(int fd) {
         return sys::make_result<int>(sys::close(fd));
-    }
-
-    using file_status = struct sys::stat;
-
-    inline sys::result<int> stat(const string &path, file_status &statbuf) {
-        return sys::make_result<int>(sys::stat(path.c_str(), &statbuf));
-    }
-
-    inline sys::result<int> fstat(int fd, file_status &statbuf) {
-        return sys::make_result<int>(sys::fstat(fd, &statbuf));
-    }
-
-    inline sys::result<int> lstat(const string &path, file_status &statbuf) {
-        return sys::make_result<int>(sys::lstat(path.c_str(), &statbuf));
     }
 }

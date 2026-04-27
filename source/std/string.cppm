@@ -41,6 +41,7 @@ export class string {
             return _data;
         } 
 
+        /* undefined behaviour if actual length do no match or length > capacity */
         void set_length_unsafe(size_t length) {
             _length = length;
         }

@@ -3,6 +3,7 @@ module;
 export module std.sys;
 
 import std.types;
+import std.posix;
 import std.sys.error;
 
 enum {
@@ -18,8 +19,22 @@ enum {
     SYS_mmap,
     SYS_mprotect,
     SYS_munmap,
+    // ...
     SYS_readv = 19,
     SYS_writev,
+    // ...
+    SYS_socket = 41,
+    SYS_connect,
+    SYS_accept,
+    SYS_sendto,
+    SYS_recvfrom,
+    SYS_sendmsg,
+    SYS_recvmsg,
+    SYS_shutdown,
+    SYS_bind,
+    SYS_listen,
+    // ...
+    SYS_setsockopt = 54,
     // ...
     SYS_exit = 60
 };
@@ -55,7 +70,7 @@ export namespace sys {
     };
 
     /* --- open --- */
-    enum open_flag : int {
+    enum struct open_flag : int {
         open_rdonly    = 0,
         open_wronly    = 1,
         open_rdwr      = 2,
@@ -70,7 +85,7 @@ export namespace sys {
         open_cloexec   = 02000000,
     };
 
-    enum open_mode : mode_t {
+    enum struct open_mode : mode_t {
         // Owner permissions
         open_irusr = 0400,   // Read by owner
         open_iwusr = 0200,   // Write by owner
@@ -151,8 +166,8 @@ export {
             syscall(void *, SYS_mmap, rdi(addr), rsi(length), rdx(prot), r(r10), r(r8), r(r9));
         }
 
-        int mprotect(void *addr, size_t len, int prot) asm("sys_mprotect");
-        int munmap(void *addr, size_t length) asm("sys_munmap");
+        int mprotect(void *addr, size_t len, int prot);
+        int munmap(void *addr, size_t length);
         */
 
         size_t readv(int fd, const iovec * vec, size_t vlen) {
@@ -162,6 +177,29 @@ export {
         size_t writev(int fd, const iovec * vec, size_t vlen) {
             syscall(size_t, SYS_writev, rdi(fd), rsi(vec), rdx(vlen));
         }
+
+        int socket(int family, int type, int protocol) {
+            syscall(int, SYS_socket, rdi(family), rsi(type), rdx(protocol));
+        }
+
+        int accept(int fd, sockaddr *upeer_sockaddr, int *upeer_addrlen) {
+            syscall(int, SYS_accept, rdi(fd), rsi(upeer_sockaddr), rdx(upeer_addrlen));
+        }
+
+        int bind(int fd, const sockaddr *umyaddr, int addrlen) {
+            syscall(int, SYS_bind, rdi(fd), rsi(umyaddr), rdx(addrlen));
+        }
+
+        int listen(int fd, int backlog) {
+            syscall(int, SYS_listen, rdi(fd), rsi(backlog));
+        }
+
+        int setsockopt(int fd, int level, int optname, const void * optval, int optlen) {
+            register const void * r10 asm("r10") = optval;
+            register int          r8  asm("r8")  = optlen;
+            syscall(int, SYS_setsockopt,
+                    rdi(fd), rsi(level), rdx(optname), r(r10), r(r8));
+        } 
 
         [[noreturn]] void exit(int status) {
             asm volatile ("syscall" :: rax(SYS_exit), rdi(status) :);

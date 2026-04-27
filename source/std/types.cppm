@@ -13,30 +13,6 @@ export {
     using int64_t  = signed long;
     using float32_t = float;
     using float64_t = double;
- };
-
-/* --- POSIX.1 --- */
-export {
-    using dev_t      = unsigned long int;
-    using uid_t      = unsigned int;
-    using gid_t      = unsigned int;
-    using ino_t      = unsigned long;
-    using ino64_t    = unsigned long int;
-    using mode_t     = unsigned int;
-    using nlink_t    = unsigned long;
-    using off_t      = signed   long;
-    using off64_t    = signed   long int;
-    using pid_t      = signed   int;
-    using blkcnt_t   = signed   long;
-    using blkcnt64_t = signed   long int;
-    using time_t     = signed   long;
-    using blksize_t  = signed   long;
-    using ssize_t    = signed   long int;
-
-    struct timespec {
-        time_t tv_sec;
-        long   tv_nsec;
-    };
 };
 
 /* --- type traits --- */
@@ -53,10 +29,9 @@ export {
         static constexpr bool value = true;
     };
 
-
     template <class From, class To>
-    concept convertible_to = requires {
-        static_cast<To>(declval<From>());
+    concept convertible_to = requires (From f) {
+        To(f);
     };
 
     template <class T>
@@ -105,6 +80,20 @@ export {
 
     template<class T>
     inline constexpr bool is_pointer_v = is_pointer<T>::value;
+
+    /* --- underlying_type --- */
+    template <class T>
+    struct underlying_type {
+        using type = __underlying_type(T);
+    };
+
+    template <class T>
+    using underlying_type_t = underlying_type<T>::type;
+
+    template <class Enum>
+    constexpr underlying_type_t<Enum> to_underlying(Enum e) {
+        return static_cast<underlying_type_t<Enum>>(e);
+    }
 };
 
 /* --- additional integral types --- */

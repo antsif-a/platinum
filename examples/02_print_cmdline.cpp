@@ -21,7 +21,7 @@ int main(int argc, char * argv[], char * envp[]) {
         int idx = env.find('=').or_else(-1);
         if (idx == -1)
             continue;
-        auto key = str(env.data, idx);
+        str key = str(env.data, idx);
         if (key == "USER"){
             println("user = ", str(key.end() + 1, env.size - idx));
             return 0;

@@ -1,4 +1,5 @@
 import std.io;
+import std.fs;
 import std.string;
 
 int main(int argc, char * argv[]) {
@@ -7,7 +8,7 @@ int main(int argc, char * argv[]) {
         return 1;
     }
 
-    int fd = open(string(argv[1]), open_rdonly, 0)
+    int fd = open(string(argv[1]), open_rdonly)
         .expect("couldn't open file");
 
     file_status statbuf;
