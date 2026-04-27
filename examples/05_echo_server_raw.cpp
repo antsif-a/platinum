@@ -3,6 +3,7 @@ import std.sys;
 import std.posix;
 import std.string;
 import std.io; // println
+import std.result; // sys::make_result
 
 #define LISTEN_BACKLOG 50
 
@@ -27,10 +28,10 @@ int main() {
         return 1;
     }
 
-    if (sys::listen(sfd, LISTEN_BACKLOG) == -1) {
-        println("listen == -1");
-        return 1;
-    }
+    /* we can use "result" by hands,
+       although it slightly increases file size */
+    sys::make_result<int>(sys::listen(sfd, LISTEN_BACKLOG))
+        .expect("failed to listen");
 
     sockaddr_in peer_addr;
     socklen_t   peer_addr_size = sizeof(peer_addr);
