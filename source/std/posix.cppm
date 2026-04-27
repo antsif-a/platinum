@@ -1,5 +1,6 @@
 export module std.posix;
 
+import stdc;
 import std.types;
 
 /* --- POSIX.1-2024 --- */
@@ -53,6 +54,12 @@ export {
         in_port_t   sin_port;       /* Port number */
         in_addr     sin_addr;       /* IPv4 address */
         char        sin_zero[8];
+
+        sockaddr_in() {}
+        sockaddr_in(in_port_t port, in_addr_t addr)
+            : sin_family(af_inet),
+              sin_port(htons(port)),
+              sin_addr(htonl(addr)) {}
     }; 
 
     enum socket_type : int {
