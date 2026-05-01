@@ -7,10 +7,10 @@ philosphy:
     - api should be self-explanatory
     - interfaces should be convenient
 3. name things as they are
-    - array is a dynamic array
+    - dynamic_array is a dynamic array
     - tuple is a tuple
     - hash_map is a hash map
-    - string is a null terminated string
+    - string is a string
 
 design choices:
 1. modules over headers
