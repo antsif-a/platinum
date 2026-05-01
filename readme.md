@@ -115,8 +115,6 @@ struct buffer;
 a view over a contiguous area of memory
 - readable / writeable
 - structurally equivalent to `view<unsigned char>`
-use cases:
-- passed to syscalls which expect generic data and does modify it
 
 ```cpp
 struct const_buffer;
@@ -124,8 +122,6 @@ struct const_buffer;
 a view over a contiguous area of memory
 - read only
 - structurally equivalent to `const_view<unsigned char>`
-use cases:
-- passed to syscalls which expect generic data and does not modify it
 
 ```cpp
 struct str;
@@ -134,6 +130,7 @@ a string view (slice) that point to immutable sequence of characters
 - read only
 - not null terminated
 - structurally equivalent to `view<const char>`
+
 use cases:
 - prefer `str` to `const char *`, as it's more convenient to work with sizes than work with raw pointers
 
