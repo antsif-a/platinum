@@ -3,7 +3,6 @@ export module std.string;
 import stdc;
 import std.types;
 import std.math;
-import std.memory;
 import std.view;
 
 /* a string
@@ -79,7 +78,7 @@ export class string {
         }
 
         operator buffer() const {
-            return buffer(_data, _length);
+            return buffer(reinterpret_cast<unsigned char*>(_data), _length);
         }
  };
 

@@ -48,7 +48,6 @@ target('std')
         'source/std/array.cppm',
         'source/std/view.cppm',
         'source/std/io.cppm',
-        'source/std/memory.cppm',
         'source/std/math.cppm',
         'source/std/result.cppm',
         'source/std/panic.cppm',
