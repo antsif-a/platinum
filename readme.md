@@ -89,3 +89,87 @@ int main(int argc, char * argv[]) {
     return 0;
 }
 ```
+
+## Documentation
+
+### views
+views (aka slices, fat pointers) are lightweight structs that contain a pointer to a memory with additional properties of this memory. views serve as buildings blocks for data structures, therefore views are implemented with `struct` and have all their members public. views are non-owning, meaning they does not manage data they point to, they cannot allocate or deallocate memory by themselves.
+
+```cpp
+template <class T>
+struct view;
+```
+a view over a contiguous and homogeneous area of memory
+- readable / writable
+
+```cpp
+template <class T>
+struct const_view;
+```
+a view over a contiguous and homogeneous area of memory
+- read only
+
+```cpp
+struct buffer;
+```
+a view over a contiguous area of memory
+- readable / writeable
+- structurally equivalent to `view<unsigned char>`
+use cases:
+- passed to syscalls which expect generic data and does modify it
+
+```cpp
+struct const_buffer;
+```
+a view over a contiguous area of memory
+- read only
+- structurally equivalent to `const_view<unsigned char>`
+use cases:
+- passed to syscalls which expect generic data and does not modify it
+
+```cpp
+struct str;
+```
+a string view (slice) that point to immutable sequence of characters
+- read only
+- not null terminated
+- structurally equivalent to `view<const char>`
+use cases:
+- prefer `str` to `const char *`, as it's more convenient to work with sizes than work with raw pointers
+
+### data structures
+data structures are complex types derived from computer science. typically they provide user-friendly interface via methods to a complex logic, therefore data structures are implemented with `class` and have all their members private. data structures are owning types, meaning they manage data they point to, which include allocation and deallocation. data structures are building blocks for abstract data types. data structures can deduce to views.
+
+```cpp
+template <class T, size_t N>
+class array;
+```
+an array.
+
+```cpp
+template <class T>
+class dynamic_array;
+```
+a dynamic array.
+
+todo:
+```cpp
+template <class... Types>
+class tuple;
+```
+a tuple.
+
+```cpp
+template <class T>
+class linked_list;
+```
+a linked list.
+
+```cpp
+template <class K, class V>
+class hash_map;
+```
+a hash map (a map implemented by a hash table).
+
+### abstract data types (ADTs)
+abstract data types are types defined by their semantics. they are defined using c++ concepts and implemented using data structures. (todo)

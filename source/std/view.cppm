@@ -5,9 +5,54 @@ import std.types;
 import std.result;
 
 /*
- * view, const_view, str and buffer have public fields (and are marked as structs)
- * to emphasize their lightweight and trivial copyable nature
+ * a memory slice over a contiguous area of bytes
+ * - does not manage memory
+ *   => should be copied
+ * - read only
  */
+export struct const_buffer {
+    const void * data;
+    size_t size;
+};
+
+
+/*
+ * a memory slice over a contiguous area of bytes
+ * - does not manage memory
+ *   => should be copied
+ * - read / write
+ */
+export struct buffer {
+    void * data;
+    size_t size;
+
+    operator const_buffer() {
+        return {data, size};
+    }
+};
+
+
+/*
+ * represents a view over a contiguous and homogeneous area of memory
+ * - does not manage memory
+ * - read only
+ */
+export template <typename T> struct const_view {
+    const T * data;
+    size_t size;
+
+    const T * begin() const {
+        return data;
+    }
+
+    const T * end() const {
+        return data + size;
+    }
+
+    const T & operator[](size_t n) const {
+        return data[n];
+    }
+};
 
 /*
  * represents a modifiable view over a contiguous and homogeneous area of memory
@@ -16,7 +61,7 @@ import std.result;
  */
 export template <typename T> struct view {
     T * data;
-    const size_t size;
+    size_t size;
 
     T * begin() const {
         return data;
@@ -33,27 +78,9 @@ export template <typename T> struct view {
     const T & operator[](size_t n) const {
         return data[n];
     }
-};
 
-/*
- * represents a view over a contiguous and homogeneous area of memory
- * - does not manage memory
- * - read only
- */
-export template <typename T> struct const_view {
-    const T * data;
-    const size_t size;
-
-    const T * begin() const {
-        return data;
-    }
-
-    const T * end() const {
-        return data + size;
-    }
-
-    const T & operator[](size_t n) const {
-        return data[n];
+    operator const_view<T>() {
+        return {data, size};
     }
 };
 
@@ -119,16 +146,8 @@ export struct str {
 
         return i;
     }
-};
 
-/*
- * a memory slice over a contiguous area of bytes
- * - does not manage memory
- *   => should be copied
- * - read / write
- * - writeable alternative to str
- */
-export struct buffer {
-    char * data;
-    size_t size;
+    operator const_buffer() {
+        return {data, size};
+    }
 };

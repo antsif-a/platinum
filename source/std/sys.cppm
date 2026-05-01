@@ -134,15 +134,15 @@ export {
                     : "%rcx", "%r11", "memory");  \
             return ret;
 
-        ssize_t read(int fd, char * buf, size_t n) {
+        ssize_t read(int fd, void * buf, size_t n) {
             syscall(ssize_t, SYS_read, rdi(fd), rsi(buf), rdx(n));
         }
 
-        ssize_t write(int fd, const char * buf, size_t n) {
+        ssize_t write(int fd, const void * buf, size_t n) {
             syscall(ssize_t, SYS_write, rdi(fd), rsi(buf), rdx(n));
         }
 
-        int open(const char *pathname, int flags, mode_t mode) {
+        int open(const char * pathname, int flags, mode_t mode) {
             syscall(int, SYS_open, rdi(pathname), rsi(flags), rdx(mode));
         }
 
@@ -170,7 +170,7 @@ export {
         int munmap(void *addr, size_t length);
         */
 
-        size_t readv(int fd, const iovec * vec, size_t vlen) {
+        size_t readv(int fd, iovec * vec, size_t vlen) {
             syscall(size_t, SYS_readv, rdi(fd), rsi(vec), rdx(vlen));
         }
 
@@ -182,7 +182,7 @@ export {
             syscall(int, SYS_socket, rdi(family), rsi(type), rdx(protocol));
         }
 
-        int accept(int fd, sockaddr *upeer_sockaddr, int *upeer_addrlen) {
+        int accept(int fd, sockaddr * upeer_sockaddr, int * upeer_addrlen) {
             syscall(int, SYS_accept, rdi(fd), rsi(upeer_sockaddr), rdx(upeer_addrlen));
         }
 
