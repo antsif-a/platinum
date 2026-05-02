@@ -15,6 +15,15 @@ export {
     using float64_t = double;
 };
 
+
+/* --- additional integral types --- */
+export {
+    using size_t = decltype(sizeof(nullptr));
+    using ptrdiff_t = decltype((int *) nullptr - (int *) nullptr);
+    using nullptr_t = decltype(nullptr);
+};
+
+
 /* --- type traits --- */
 export {
     template <class T>
@@ -96,10 +105,25 @@ export {
     }
 };
 
-/* --- additional integral types --- */
+/* --- basic concepts --- */
 export {
-    using size_t = decltype(sizeof(nullptr));
-    using ptrdiff_t = decltype((int *) nullptr - (int *) nullptr);
-    using nullptr_t = decltype(nullptr);
+    template <class T, class E>
+    concept iterable = requires(T x) {
+        { x.begin() } -> convertible_to<const E *>;
+        { x.end() }   -> convertible_to<const E *>;
+    };
+
+    template <class T, class E>
+    concept const_sequence = requires(T x, size_t i) {
+        { size(x) }  -> convertible_to<size_t>;
+        { x[i] }      -> convertible_to<E>;
+    };
+
+    template <class T, class E>
+    concept sequence = requires(T x, size_t i, E e) {
+        { size(x) }  -> convertible_to<size_t>;
+        { x[i] }      -> convertible_to<E>;
+        x[i] = e;
+    };
 };
 

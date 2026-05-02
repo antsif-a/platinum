@@ -109,6 +109,11 @@ export namespace sys {
 
 
     /* --- readv / writev --- */
+    struct const_iovec {
+        const void * iov_base;
+        size_t       iov_len;
+    };
+
     struct iovec {
         void * iov_base;    /* Starting address */
         size_t iov_len;     /* Number of bytes to transfer */
@@ -170,11 +175,11 @@ export {
         int munmap(void *addr, size_t length);
         */
 
-        size_t readv(int fd, iovec * vec, size_t vlen) {
+        size_t readv(int fd, const iovec * vec, size_t vlen) {
             syscall(size_t, SYS_readv, rdi(fd), rsi(vec), rdx(vlen));
         }
 
-        size_t writev(int fd, const iovec * vec, size_t vlen) {
+        size_t writev(int fd, const const_iovec * vec, size_t vlen) {
             syscall(size_t, SYS_writev, rdi(fd), rsi(vec), rdx(vlen));
         }
 

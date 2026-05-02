@@ -4,6 +4,7 @@ import std.string;
 import std.array;
 import std.types;
 import std.view;
+import std.algorithm;
 
 int main(int argc, char * argv[], char * envp[]) {
     /* dynamic_array is the std::vector analogue */
@@ -23,7 +24,7 @@ int main(int argc, char * argv[], char * envp[]) {
     println(const_view<str>(args));
 
     for (str env : envs) {
-        int idx = env.find('=').or_else(-1);
+        int idx = find(env, '=').or_else(-1);
         if (idx == -1)
             continue;
         str key = str(env.data, idx);

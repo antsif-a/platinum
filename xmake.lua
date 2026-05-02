@@ -47,6 +47,7 @@ target('std')
         'source/std/string.cppm',
         'source/std/array.cppm',
         'source/std/view.cppm',
+        'source/std/algorithm.cppm',
         'source/std/io.cppm',
         'source/std/math.cppm',
         'source/std/result.cppm',

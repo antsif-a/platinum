@@ -3,17 +3,16 @@ export module std.panic;
 import stdc;
 import std.sys;
 import std.sys.error;
+import std.view;
 
 constexpr char panic_message[] = "error: ";
 
-export [[noreturn]] void panic(const char * message) {
-    sys::iovec iov[3];
-    iov[0].iov_base = (void *) panic_message;
-    iov[0].iov_len  = sizeof(panic_message);
-    iov[1].iov_base = (void *) message;
-    iov[1].iov_len  = strlen(message);
-    iov[2].iov_base = (void *) "\n";
-    iov[2].iov_len  = 1;
+export [[noreturn]] void panic(str message) {
+    const sys::const_iovec iov[3] = {
+        { panic_message, sizeof(panic_message) },
+        { message.data, message.size },
+        { "\n", 1 }
+    };
     sys::writev(sys::stderr, iov, 3);
     sys::exit(1);
 }

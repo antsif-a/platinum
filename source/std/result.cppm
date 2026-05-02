@@ -2,6 +2,7 @@ export module std.result;
 
 import std.types;
 import std.panic; 
+import std.view;
 import std.sys;
 
 export template <class T, class E>
@@ -24,9 +25,8 @@ struct result {
         return value;
     }
 
-    /* returns value on success, otherwise prints message with "panic: " prefix
-       note: we use "const char *" over "str" here to avoid dependency loop with std.view */
-    T expect(const char * message) {
+    /* returns value on success, otherwise prints message with "panic: " prefix */
+    T expect(str message) {
         if (type == Type::Error)
             panic(message);
         return value;

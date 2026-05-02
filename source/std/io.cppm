@@ -48,7 +48,7 @@ export {
         if (n == 1)
             return write(fd, arr[0]);
 
-        sys::iovec iov[max_runtime_iovcnt];
+        sys::const_iovec iov[max_runtime_iovcnt];
         for (size_t i = 0; i < n; ++i) {
             iov[i].iov_base = (void *) arr[i].data;
             iov[i].iov_len  = arr[i].size;
@@ -68,7 +68,7 @@ export {
             return write(fd, str(args)...);
 
         str stv[n] = { args... };
-        sys::iovec iov[n];
+        sys::const_iovec iov[n];
         for (size_t i = 0; i < n; ++i) {
             iov[i].iov_base = (void *) stv[i].data;
             iov[i].iov_len  = stv[i].size;
@@ -84,7 +84,7 @@ export {
         if (n == 0)
             return write(fd, str("\n"));
 
-        sys::iovec iov[max_runtime_iovcnt];
+        sys::const_iovec iov[max_runtime_iovcnt];
         for (size_t i = 0; i < n; ++i) {
             iov[i].iov_base = (void *) arr[i].data;
             iov[i].iov_len  = arr[i].size;
