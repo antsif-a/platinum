@@ -7,8 +7,6 @@ import std.view;
 import std.string;
 import std.array;
 
-inline constexpr size_t max_runtime_iovcnt = 8;
-
 export {
     using enum sys::stdio;
 
@@ -22,7 +20,6 @@ export {
         if (!res)
             return res;
         st.set_length_unsafe(res.value);
-        st[res.value] = '\0';
         return res;
     }
 
@@ -41,24 +38,20 @@ export {
     }
 
     inline sys::result<size_t> write(int fd, const const_view<str> arr) {
-        const size_t n = arr.size;
-
-        if (n == 0)
+        if (arr.size == 0)
             return 0;
-        if (n == 1)
+
+        if (arr.size == 1)
             return write(fd, arr[0]);
 
-        sys::const_iovec iov[max_runtime_iovcnt];
-        for (size_t i = 0; i < n; ++i) {
-            iov[i].iov_base = (void *) arr[i].data;
-            iov[i].iov_len  = arr[i].size;
-        }
-
-        return sys::make_result<size_t>(sys::writev(fd, iov, n));
+        return sys::make_result<size_t>(
+            // we can avoid copy because const_iovec is equivalent to const_view<str>@data
+            sys::writev(fd, reinterpret_cast<const sys::const_iovec *>(arr.data), arr.size)
+        );
     }
 
     template <typename... T> requires (convertible_to<T, str> && ...)
-    inline sys::result<size_t> write(int fd, T const &...args) {
+    constexpr sys::result<size_t> write(int fd, T const &...args) {
         constexpr size_t n = sizeof...(T);
 
         if constexpr (n == 0)
@@ -67,10 +60,11 @@ export {
         if constexpr (n == 1)
             return write(fd, str(args)...);
 
+        // no allocation or construction is done here, this function is constexpr
         str stv[n] = { args... };
         sys::const_iovec iov[n];
         for (size_t i = 0; i < n; ++i) {
-            iov[i].iov_base = (void *) stv[i].data;
+            iov[i].iov_base = stv[i].data;
             iov[i].iov_len  = stv[i].size;
         }
 
@@ -82,27 +76,29 @@ export {
         const size_t n = arr.size;
 
         if (n == 0)
-            return write(fd, str("\n"));
+            return write(fd, "\n");
 
-        sys::const_iovec iov[max_runtime_iovcnt];
+        // allocation and copying is only done here,
+        // but it's cheaper than another syscall
+        sys::const_iovec iov[n];
         for (size_t i = 0; i < n; ++i) {
-            iov[i].iov_base = (void *) arr[i].data;
+            iov[i].iov_base = arr[i].data;
             iov[i].iov_len  = arr[i].size;
         }
-        iov[n].iov_base = (void *) "\n";
+        iov[n].iov_base = "\n";
         iov[n].iov_len  = 1;
 
         return sys::make_result<size_t>(sys::writev(fd, iov, n + 1));
     }
 
     template <typename... T> requires (convertible_to<T, str> && ...)
-    inline sys::result<size_t> writeln(int fd, T const &...args) {
+    constexpr sys::result<size_t> writeln(int fd, T const &...args) {
         return write(fd, args..., str("\n"));
     }
 
     /* --- print --- */
     template <typename ...T> requires (convertible_to<T, str> && ...)
-    inline sys::result<size_t> print(T const &...args) {
+    constexpr sys::result<size_t> print(T const &...args) {
         return write(stdout, args...);
     }
 
@@ -112,7 +108,7 @@ export {
     }
 
     template <typename ...T> requires (convertible_to<T, str> && ...)
-    inline sys::result<size_t> println(T const &...args) {
+    constexpr sys::result<size_t> println(T const &...args) {
         return writeln(stdout, args...);
     }  
 
