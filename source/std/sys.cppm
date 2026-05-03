@@ -43,7 +43,7 @@ export namespace sys {
     using error = sys::error;
 
     /* --- read / write --- */
-    enum stdio : int {
+    enum stdio : unsigned int {
         stdin, stdout, stderr
     };
 
@@ -121,7 +121,7 @@ export namespace sys {
 };
 
 export {
-    namespace sys { 
+    namespace sys {
         #define rax "a"
         #define rbx "b"
         #define rcx "c"
@@ -130,7 +130,7 @@ export {
         #define rdi "D"
         #define r "r"
         #define out "="
-        
+
         #define syscall(return_type, nd, ...)       \
             return_type ret;            \
             asm volatile ("syscall"     \
@@ -139,11 +139,11 @@ export {
                     : "%rcx", "%r11", "memory");  \
             return ret;
 
-        ssize_t read(int fd, void * buf, size_t n) {
+        ssize_t read(unsigned int fd, void * buf, size_t n) {
             syscall(ssize_t, SYS_read, rdi(fd), rsi(buf), rdx(n));
         }
 
-        ssize_t write(int fd, const void * buf, size_t n) {
+        ssize_t write(unsigned int fd, const void * buf, size_t n) {
             syscall(ssize_t, SYS_write, rdi(fd), rsi(buf), rdx(n));
         }
 
@@ -151,12 +151,12 @@ export {
             syscall(int, SYS_open, rdi(pathname), rsi(flags), rdx(mode));
         }
 
-        int close(int fd) {
+        int close(unsigned int fd) {
             syscall(int, SYS_close, rdi(fd));
         }
 
         int stat(const char * path, struct stat * statbuf);
-        int fstat(int fd, struct stat * statbuf) {
+        int fstat(unsigned int fd, struct stat * statbuf) {
             syscall(int, SYS_fstat, rdi(fd), rsi(statbuf));
         }
 
@@ -175,11 +175,11 @@ export {
         int munmap(void *addr, size_t length);
         */
 
-        size_t readv(int fd, const iovec * vec, size_t vlen) {
+        size_t readv(unsigned int fd, const iovec * vec, size_t vlen) {
             syscall(size_t, SYS_readv, rdi(fd), rsi(vec), rdx(vlen));
         }
 
-        size_t writev(int fd, const const_iovec * vec, size_t vlen) {
+        size_t writev(unsigned int fd, const const_iovec * vec, size_t vlen) {
             syscall(size_t, SYS_writev, rdi(fd), rsi(vec), rdx(vlen));
         }
 
@@ -187,24 +187,24 @@ export {
             syscall(int, SYS_socket, rdi(family), rsi(type), rdx(protocol));
         }
 
-        int accept(int fd, sockaddr * upeer_sockaddr, int * upeer_addrlen) {
+        int accept(unsigned int fd, sockaddr * upeer_sockaddr, int * upeer_addrlen) {
             syscall(int, SYS_accept, rdi(fd), rsi(upeer_sockaddr), rdx(upeer_addrlen));
         }
 
-        int bind(int fd, const sockaddr *umyaddr, int addrlen) {
+        int bind(unsigned int fd, const sockaddr *umyaddr, int addrlen) {
             syscall(int, SYS_bind, rdi(fd), rsi(umyaddr), rdx(addrlen));
         }
 
-        int listen(int fd, int backlog) {
+        int listen(unsigned int fd, int backlog) {
             syscall(int, SYS_listen, rdi(fd), rsi(backlog));
         }
 
-        int setsockopt(int fd, int level, int optname, const void * optval, int optlen) {
+        int setsockopt(unsigned int fd, int level, int optname, const void * optval, int optlen) {
             register const void * r10 asm("r10") = optval;
             register int          r8  asm("r8")  = optlen;
             syscall(int, SYS_setsockopt,
                     rdi(fd), rsi(level), rdx(optname), r(r10), r(r8));
-        } 
+        }
 
         [[noreturn]] void exit(int status) {
             asm volatile ("syscall" :: rax(SYS_exit), rdi(status) :);
