@@ -1,51 +1,136 @@
 export module std.array;
 
-import stdc;
 import std.types;
+import std.memory;
 import std.view;
 
-/*
- * a dynamic linear array
- * - manages memory
- *   => should be referenced
- * - dynamic size
- * - readable / writable
- */
+export template <typename T, size_t N> class array {
+    T * elements;
+public:
+    array() {
+        elements = new T[N];
+    }
+
+    array(T * elements) {
+        this->elements = new T[N];
+        copy(this->elements, elements, N);
+    }
+
+    array(std::initializer_list<T> args) {
+        this->elements = new T[N];
+        copy(this->elements, args.begin(), args.size());
+    }
+
+    ~array() {
+        delete[] elements;
+    }
+
+    size_t count() const {
+        return N;
+    }
+
+    T * data() const {
+        return elements;
+    }
+
+    const T & operator[](size_t n) const {
+        return elements[n];
+    }
+
+    T & operator[](size_t n) {
+        return elements[n];
+    }
+
+    operator view<T>() {
+        return {elements, N};
+    }
+
+    operator const_view<T>() {
+        return {elements, N};
+    }
+};
+
+export template <class T> class fixed_array {
+    T * elements;
+    const size_t size;
+public:
+    fixed_array(size_t size): size(size) {
+        this->elements = new T[size];
+    }
+
+    fixed_array(T * elements, size_t size): fixed_array(size) {
+        copy(this->elements, elements, size);
+    }
+
+    fixed_array(std::initializer_list<T> args):
+        fixed_array(args.begin(), args.size()) {}
+
+    ~fixed_array() {
+        delete[] elements;
+    }
+
+    size_t count() {
+        return size;
+    }
+
+    T * data() {
+        return elements;
+    }
+
+    const T & operator[](size_t n) const {
+        return elements[n];
+    }
+
+    T & operator[](size_t n) {
+        return elements[n];
+    }
+
+    operator view<T>() {
+        return {elements, size};
+    }
+
+    operator const_view<T>() {
+        return {elements, size};
+    }
+};
+
 export template <typename T> class dynamic_array {
     T * elements;
-    size_t _count;
-    size_t _capacity;
+    size_t count_;
+    size_t capacity_;
 public:
-    dynamic_array() : elements(nullptr), _count(0), _capacity(0) {}
-    dynamic_array(size_t _capacity) : _count(0), _capacity(_capacity) {
-        elements = new T[_capacity]; 
-    }
-    dynamic_array(T * elements) requires is_pointer_v<T> {
-        _count = arrlen(static_cast<void * []>(elements));
-        _capacity = _count;
-        memcpy(this->elements, elements, _count);
+    dynamic_array():
+        elements(nullptr), count_(0), capacity_(0) {}
+
+    dynamic_array(size_t capacity):
+        count_(0), capacity_(capacity)
+    {
+        elements = new T[capacity];
     }
 
-    void resize(size_t new_capacity) {
-        if (_capacity == 0) {
-            elements = new T[new_capacity];
-        } else {
-            T * new_elements = new T[new_capacity];
-            memcpy(new_elements, elements, _count);
-            delete[] elements;
-            elements = new_elements;
-            _capacity = new_capacity;
-        }
+    dynamic_array(T * elements, size_t size) {
+        count_ = size;
+        capacity_ = size;
+        copy(this->elements, elements, size);
     }
 
-    void push_back_unchecked(const T& element) {
-        elements[_count++] = element;
+    dynamic_array(std::initializer_list<T> args):
+        dynamic_array(args.begin(), args.size()) {}
+
+    size_t count() const {
+        return count_;
     }
 
-    void push_back(const T& element) {
-        if (_count == _capacity)
-            resize(_capacity * 2);
-        elements[_count++] = element;
+    size_t capacity() const {
+        return capacity_;
+    }
+
+    T * data() {
+        return elements;
+    }
+
+    const T * data() const {
+        return elements;
     }
 
     T & operator[](size_t n) {
@@ -56,32 +141,65 @@ public:
         return elements[n];
     }
 
-    T * data() const {
-        return elements;
+    void resize(size_t new_capacity) {
+        if (capacity_ == 0) {
+            elements = new T[new_capacity];
+        } else {
+            T * new_elements = new T[new_capacity];
+            copy(new_elements, elements, count_);
+            delete[] elements;
+            elements = new_elements;
+            capacity_ = new_capacity;
+        }
     }
 
-    T * begin() const {
-        return elements;
+    void push_back_unchecked(const T& element) {
+        elements[count_++] = element;
     }
 
-    T * end() const {
-        return elements + _count;
-    }
-
-    size_t count() const {
-        return _count;
-    }
-
-    size_t capacity() const {
-        return _capacity;
+    void push_back(const T& element) {
+        if (count_ == capacity_)
+            resize(capacity_ * 2);
+        elements[count_++] = element;
     }
 
     operator view<T>() {
-        return {elements, _count};
+        return {elements, count_};
     }
 
     operator const_view<T>() {
-        return {elements, _count};
+        return {elements, count_};
     }
 };
 
+export {
+    template <typename T, size_t N>
+    size_t size(array<T, N> &) {
+        return N;
+    }
+
+    template <typename T, size_t N>
+    T * data(array<T, N> &arr) {
+        return arr.data();
+    }
+
+    template <typename T>
+    size_t size(fixed_array<T> &arr) {
+        return arr.count();
+    }
+
+    template <typename T>
+    T * data(fixed_array<T> &arr) {
+        return arr.data();
+    }
+
+    template <typename T>
+    size_t size(dynamic_array<T> &arr) {
+        return arr.count();
+    }
+
+    template <typename T>
+    T * data(dynamic_array<T> &arr) {
+        return arr.data();
+    }
+};

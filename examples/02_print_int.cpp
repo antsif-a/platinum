@@ -1,5 +1,5 @@
 import std.io;
-import std.string;
+import std.format;
 
 int main() {
     println(format(-67));

@@ -1,8 +1,8 @@
 export module std.string;
 
 import stdc;
+import std.memory;
 import std.types;
-import std.math;
 import std.view;
 
 /* a string
@@ -20,7 +20,7 @@ export class string {
         string() : _data(nullptr), _length(0) {}
         string(const char * data, size_t length) : _length(length), _capacity(length) {
             _data = new char[_length + 1] {};
-            memcpy(_data, data, length);
+            copy(_data, data, length);
         }
         string(const char * data) : string(data, strlen(data)) {}
 
@@ -80,27 +80,4 @@ export class string {
         operator buffer() const {
             return buffer(reinterpret_cast<unsigned char*>(_data), _length);
         }
- };
-
-export string format(int x) {
-    if (x == 0)
-        return string("0");
-
-    // 12 bytes is enough for 32-bit int: "-2147483648" + null
-    char buf[12];
-    char * end = buf + 12;
-    char * ptr = end;
-
-    signed sign = sgn(x);
-    x = abs(x);
-
-    do {
-        *--ptr = '0' + (x % 10);
-        x /= 10;
-    } while (x != 0);
-
-    if (sign == -1)
-        *--ptr = '-';
-
-    return string(ptr, end - ptr); 
-}
+};

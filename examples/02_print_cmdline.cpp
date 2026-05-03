@@ -1,27 +1,27 @@
-import stdc;
-import std.io;
-import std.string;
-import std.array;
 import std.types;
 import std.view;
+import std.array;
 import std.algorithm;
+import std.io;
+
+size_t envc(char * envp[]) {
+    size_t i = 0;
+    while (envp[i])
+        ++i;
+    return i;
+}
 
 int main(int argc, char * argv[], char * envp[]) {
-    /* dynamic_array is the std::vector analogue */
-    auto args = dynamic_array<str>(argc);
+    auto args = fixed_array<str>(argc);
+    for (int i = 0; i < argc; ++i)
+        args[i] = str(argv[i]);
 
-    while (args.count() < args.capacity())
-        /* we can use unsafe / unchecked functions to improve performance
-           here we are sure that length will not overflow capacity
-           so we safely ignore capacity check */
-        args.push_back_unchecked(argv[args.count()]); 
-
-    auto envs = dynamic_array<str>(arrlen((void **) envp));
-    while (envs.count() < envs.capacity())
-        envs.push_back_unchecked(envp[envs.count()]);
+    auto envs = fixed_array<str>(envc(envp));
+    for (size_t i = 0; i < size(envs); ++i)
+        envs[i] = str(envp[i]);
 
     print("cmdline: ");
-    println(const_view<str>(args));
+    println(args);
 
     for (str env : envs) {
         int idx = find(env, '=').or_else(-1);
@@ -29,7 +29,7 @@ int main(int argc, char * argv[], char * envp[]) {
             continue;
         str key = str(env.data, idx);
         if (key == "USER"){
-            println("user = ", str(key.end() + 1, env.size - idx));
+            println("user = ", str(env.data + idx + 1, env.size - idx));
             return 0;
         }
     }

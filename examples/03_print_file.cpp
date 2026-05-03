@@ -11,7 +11,7 @@ int main(int argc, char * argv[]) {
 
     /* third argument of open - open mode - can be omitted
        if neither open_creat nor open_tmpfile is specified in flags */
-    int fd = open(string(argv[1]), open_rdonly)
+    int fd = open(argv[1], open_rdonly)
         .expect("couldn't open file");
 
     file_status statbuf;

@@ -21,14 +21,6 @@ export template <typename T> struct const_view {
     const T * data;
     size_t size;
 
-    const T * begin() const {
-        return data;
-    }
-
-    const T * end() const {
-        return data + size;
-    }
-
     const T & operator[](size_t n) const {
         return data[n];
     }
@@ -41,14 +33,6 @@ export template <typename T> struct const_view {
 export template <typename T> struct view {
     T * data;
     size_t size;
-
-    T * begin() const {
-        return data;
-    }
-
-    T * end() const {
-        return data + size;
-    }
 
     T & operator[](size_t n) {
         return data[n];
@@ -113,14 +97,6 @@ export struct str {
         return data[n];
     }
 
-    const char * begin() const {
-        return data;
-    }
-    
-    const char * end() const {
-        return data + size;
-    }
-
     operator const_buffer() {
         return {data, size};
     }
@@ -130,6 +106,20 @@ export struct str {
     }
 };
 
-export size_t size(str &s) {
-    return s.size;
-}
+// we need these functions because .size and .data are already members
+export {
+    // now "str" is both const_sequence and const_span
+    // begin() and end() are generated automatically by template system
+    size_t       size(str &x) { return x.size; };
+    const char * data(str &x) { return x.data; };
+
+    // same for other views
+    void * data(buffer &x) { return x.data; };
+    size_t size(buffer &x) { return x.size; };
+    const void * data(const_buffer &x) { return x.data; };
+    size_t       size(const_buffer &x) { return x.size; };
+    template <class T> T *    data(view<T> &x) { return x.data; };
+    template <class T> size_t size(view<T> &x) { return x.size; };
+    template <class T> const T * data(const_view<T> &x) { return x.data; };
+    template <class T> size_t    size(const_view<T> &x) { return x.size; };
+};

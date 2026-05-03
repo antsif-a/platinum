@@ -5,10 +5,11 @@ import std.panic;
 import std.view;
 import std.sys;
 
+struct unit_type {};
+
 export template <class T, class E>
 struct result {
-    enum struct Type { Value, Error };
-    Type type;
+    enum struct Type { Value, Error } type;
     union {
         T value;
         E error;
@@ -53,16 +54,20 @@ struct result {
 };
 
 export namespace sys {
-    template <class T>
+    template <class T = unit_type>
     using result = ::result<T, sys::error>;
 
     template <class T>
-    ::result<T, sys::error> make_result(int ret) {
-        if (ret < 0) {
+    inline ::result<T, sys::error> make_result(int ret) {
+        if (ret < 0)
             return static_cast<sys::error>(-ret);
-        } else {
-            return static_cast<T>(ret);
-        }
+        return static_cast<T>(ret);
+    }
+
+    inline ::result<unit_type, sys::error> make_result(int ret) {
+        if (ret < 0)
+            return static_cast<sys::error>(-ret);
+        return unit_type {};
     }
 };
 

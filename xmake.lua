@@ -24,7 +24,7 @@ add_cxxflags(
 add_ldflags(
     '-nostdlib', '-nostdlib++',
     '-static',
---    '-Wl,--strip-all',
+    '-Wl,--strip-all',
     '-Wl,--gc-sections',
     '-Wl,--build-id=none',
     {force = true}
@@ -40,11 +40,13 @@ target('std')
         'source/std/c/byteswap.c',
         'source/std/c/network.c',
         'source/std/c/module.cppm',
+        'source/std/memory.cppm',
         'source/std/types.cppm',
         'source/std/posix.cppm',
         'source/std/sys.cppm',
         'source/std/sys-error.cppm',
         'source/std/string.cppm',
+        'source/std/format.cppm',
         'source/std/array.cppm',
         'source/std/view.cppm',
         'source/std/algorithm.cppm',
@@ -86,6 +88,7 @@ end
 example_target('01_hello_world')
 example_target('02_print_cmdline')
 example_target('02_print_int')
+example_target('02_sort')
 example_target('03_print_file')
 example_target('04_echo')
 example_target('05_echo_server_raw')
