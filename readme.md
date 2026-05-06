@@ -7,7 +7,7 @@
 1. hello world
 ```cpp
 import std.io;
-                                                                                                                                                                            
+
 int main() {
     println("Hello, World");
     return 0;
@@ -170,3 +170,7 @@ a hash map (a map implemented by a hash table).
 
 ### abstract data types (ADTs)
 abstract data types are types defined by their semantics. they are defined using c++ concepts and implemented using data structures. (todo)
+
+## Other
+guidelines for writing for this library: [guidelines.md](guidelines.md)
+to-do list: [todo.md](todo.md)
