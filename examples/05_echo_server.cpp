@@ -1,6 +1,7 @@
 import std.io;
 import std.net;
 import std.string;
+import std.view;
 
 int main() {
     int sfd = socket(af_inet, sock_stream, 0)
@@ -27,7 +28,7 @@ int main() {
     string buf = string(128);
     for (;;) {
         /* read(int, string &) overload set string length to actual value returned by read */
-        if (!read(cfd, buf))
+        if (!read(cfd, buf) || size(buf) == 0)
             goto close;
         write(cfd, buf);
     }

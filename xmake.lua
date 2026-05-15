@@ -48,6 +48,7 @@ target('std')
         'source/std/string.cppm',
         'source/std/format.cppm',
         'source/std/array.cppm',
+        'source/std/map.cppm',
         'source/std/view.cppm',
         'source/std/algorithm.cppm',
         'source/std/io.cppm',
@@ -87,6 +88,7 @@ end
 
 example_target('01_hello_world')
 example_target('02_print_cmdline')
+example_target('02_env_map')
 example_target('02_print_int')
 example_target('02_sort')
 example_target('03_print_file')

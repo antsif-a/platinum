@@ -7,14 +7,15 @@ import std.string;
 
 template <class T, size_t N>
 void print_array(array<T, N> &arr) {
+    string fmt = string(12);
     for (size_t i = 0; i < N; ++i) {
-        string x = format(arr[i]);
+        format_to(fmt, arr[i]);
         if (i == 0) {
-            print("[", x, ", ");
+            print("[", fmt, ", ");
         } else if (i == N - 1) {
-            println(x, "]");
+            println(fmt, "]");
         } else {
-            print(x, ", ");
+            print(fmt, ", ");
         }
     }
 }

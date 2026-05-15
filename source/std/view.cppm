@@ -79,6 +79,15 @@ export struct str {
     str(const char * data):
         str(data, strlen(data)) {}
 
+    bool operator==(const str &st) const {
+        if (size != st.size)
+            return false;
+        for (size_t i = 0; i < size; ++i)
+            if (data[i] != st[i])
+                return false;
+        return true;
+    }
+
     template <size_t N>
     bool operator==(const char (&p)[N]) const {
         if (size != N - 1)
@@ -110,16 +119,16 @@ export struct str {
 export {
     // now "str" is both const_sequence and const_span
     // begin() and end() are generated automatically by template system
-    size_t       size(str &x) { return x.size; };
-    const char * data(str &x) { return x.data; };
+    size_t       size(const str &x) { return x.size; };
+    const char * data(const str &x) { return x.data; };
 
     // same for other views
-    void * data(buffer &x) { return x.data; };
-    size_t size(buffer &x) { return x.size; };
-    const void * data(const_buffer &x) { return x.data; };
-    size_t       size(const_buffer &x) { return x.size; };
-    template <class T> T *    data(view<T> &x) { return x.data; };
-    template <class T> size_t size(view<T> &x) { return x.size; };
-    template <class T> const T * data(const_view<T> &x) { return x.data; };
-    template <class T> size_t    size(const_view<T> &x) { return x.size; };
+    void * data(const buffer &x) { return x.data; };
+    size_t size(const buffer &x) { return x.size; };
+    const void * data(const const_buffer &x) { return x.data; };
+    size_t       size(const const_buffer &x) { return x.size; };
+    template <class T> T *    data(const view<T> &x) { return x.data; };
+    template <class T> size_t size(const view<T> &x) { return x.size; };
+    template <class T> const T * data(const const_view<T> &x) { return x.data; };
+    template <class T> size_t    size(const const_view<T> &x) { return x.size; };
 };

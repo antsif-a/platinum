@@ -99,18 +99,12 @@ export template <typename T> class dynamic_array {
     size_t count_;
     size_t capacity_;
 public:
-    dynamic_array():
-        elements(nullptr), count_(0), capacity_(0) {}
-
     dynamic_array(size_t capacity):
-        count_(0), capacity_(capacity)
-    {
-        elements = new T[capacity];
-    }
+        elements(new T[capacity]), count_(0), capacity_(capacity) {}
 
-    dynamic_array(T * elements, size_t size) {
-        count_ = size;
-        capacity_ = size;
+    dynamic_array(T * elements, size_t size):
+        count_(size), capacity_(size)
+    {
         copy(this->elements, elements, size);
     }
 
@@ -142,15 +136,11 @@ public:
     }
 
     void resize(size_t new_capacity) {
-        if (capacity_ == 0) {
-            elements = new T[new_capacity];
-        } else {
-            T * new_elements = new T[new_capacity];
-            copy(new_elements, elements, count_);
-            delete[] elements;
-            elements = new_elements;
-            capacity_ = new_capacity;
-        }
+        T * new_elements = new T[new_capacity];
+        copy(new_elements, elements, count_);
+        delete[] elements;
+        elements = new_elements;
+        capacity_ = new_capacity;
     }
 
     void push_back_unchecked(const T& element) {
@@ -163,11 +153,11 @@ public:
         elements[count_++] = element;
     }
 
-    operator view<T>() {
+    operator view<T>() const {
         return {elements, count_};
     }
 
-    operator const_view<T>() {
+    operator const_view<T>() const {
         return {elements, count_};
     }
 };

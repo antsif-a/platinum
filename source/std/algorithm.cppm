@@ -19,6 +19,17 @@ export {
         }
         return error::not_found;
     }
+
+    template <class T, class F>
+    result<size_t, error> find_if(T x, F pred) requires const_sequence<T> {
+        size_t i = 0;
+        while (data(x) + i != end(x)) {
+            if (pred(x[i]))
+                return i;
+            ++i;
+        }
+        return error::not_found;
+    }
 };
 
 template <class T>

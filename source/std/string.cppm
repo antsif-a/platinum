@@ -38,7 +38,7 @@ export class string {
 
         const char * data() const {
             return _data;
-        } 
+        }
 
         /* undefined behaviour if actual length do no match or length > capacity */
         void set_length_unsafe(size_t length) {
@@ -64,7 +64,7 @@ export class string {
         const char * begin() const {
             return _data;
         }
-        
+
         const char * end() const {
             return _data + _length;
         }
@@ -80,4 +80,10 @@ export class string {
         operator buffer() const {
             return buffer(reinterpret_cast<unsigned char*>(_data), _length);
         }
+};
+
+export {
+    size_t size(const string &st) {
+        return st.length();
+    }
 };

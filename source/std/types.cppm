@@ -36,8 +36,8 @@ export {
 export {
     using std::declval;
 
-    using std::false_type; 
-    using std::true_type; 
+    using std::false_type;
+    using std::true_type;
 
     using std::convertible_to;
 
@@ -49,9 +49,9 @@ export {
 
     using std::is_same;
     using std::is_same_v;
-    
-    using std::is_pointer; 
-    using std::is_pointer_v; 
+
+    using std::is_pointer;
+    using std::is_pointer_v;
 
     template <class T>
     struct underlying_type {
@@ -100,7 +100,7 @@ export {
     template <class T>
     const element_t<T> * end(T &x) requires const_span<T> {
         return data(x) + size(x);
-    } 
+    }
 
     /* --- sequence --- */
     template <class T>
