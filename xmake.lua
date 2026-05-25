@@ -8,7 +8,7 @@ add_cxflags(
     '-Wno-main',
     '-Wno-reserved-module-identifier',
     '-Wno-include-angled-in-module-purview',
-    '-ggdb',
+    '-fno-ident',
     '-fno-asynchronous-unwind-tables', '-fno-unwind-tables',
     '-ffunction-sections', '-fdata-sections',
     '-fno-exceptions', '-fno-stack-protector',
@@ -26,10 +26,9 @@ add_ldflags(
     '-static',
     '-Wl,--strip-all',
     '-Wl,--gc-sections',
-    '-Wl,--build-id=none',
-    {force = true}
+    '-Wl,--build-id=none'
 )
-add_ldflags('-Wl,-z,noseparate-code', '-Wl,-z,norelro')
+add_ldflags('-Wl,-z,noseparate-code', '-Wl,-z,norelro', '-Wl,-s')
 
 target('std')
     set_kind('static')
@@ -84,6 +83,10 @@ function example_target(name)
     add_files(
         'examples/'..name..'.cpp'
     )
+
+    after_link(function (target)
+        os.run("strip -s -R .comment -R .gnu.version -R .note.gnu.property %s", target:targetfile())
+    end)
 end
 
 example_target('01_hello_world')

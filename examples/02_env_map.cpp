@@ -5,6 +5,7 @@ import std.io;
 import std.types;
 import std.algorithm;
 import std.format;
+import std.result;
 
 size_t envc(char * envp[]) {
     size_t i = 0;
@@ -13,7 +14,7 @@ size_t envc(char * envp[]) {
     return i;
 }
 
-int main(int, char * [], char * envp[]) {
+flat_map<str, str> envp_to_flat_map(char * envp[]) {
     flat_map<str, str> env(envc(envp));
     for (size_t i = 0; envp[i] != nullptr; ++i) {
         str entry = str(envp[i]);
@@ -27,6 +28,11 @@ int main(int, char * [], char * envp[]) {
         );
     }
 
+    return env;
+}
 
-    println("user = ", * env.get("USER").expect("no value"));
+int main(int, char * [], char * envp[]) {
+    flat_map<str, str> env = envp_to_flat_map(envp);
+    const str * username = env.get("USER").expect("no user name in envp");
+    println("user = ", * username);
 }

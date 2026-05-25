@@ -41,10 +41,6 @@ export {
             V value;
         };
 
-        enum struct error {
-            not_found
-        };
-
         flat_map(size_t capacity):
             entries(capacity) {}
 

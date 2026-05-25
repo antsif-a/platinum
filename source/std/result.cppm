@@ -9,7 +9,8 @@ struct unit_type {};
 
 export template <class T, class E>
 struct result {
-    enum struct Type { Value, Error } type;
+    enum struct Type { Value, Error }
+        type;
     union {
         T value;
         E error;
@@ -53,8 +54,11 @@ struct result {
     }
 };
 
-export enum struct error {
-    not_found
+export {
+    enum struct error {
+        none,
+        not_found
+    };
 };
 
 export namespace sys {

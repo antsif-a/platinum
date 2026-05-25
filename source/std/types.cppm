@@ -3,6 +3,7 @@ module;
 #include <cstdint>
 #include <initializer_list>
 #include <concepts>
+#include <tuple>
 
 export module std.types;
 
