@@ -1,7 +1,7 @@
 export module std.result;
 
 import std.types;
-import std.panic; 
+import std.panic;
 import std.view;
 import std.sys;
 
@@ -51,6 +51,10 @@ struct result {
     T unwrap_unsafe() {
         return value;
     }
+};
+
+export enum struct error {
+    not_found
 };
 
 export namespace sys {

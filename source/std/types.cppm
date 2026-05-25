@@ -6,7 +6,7 @@ module;
 
 export module std.types;
 
-/* --- basic integral types --- */
+/* --- integral types --- */
 export {
     // data model is derived automatically
     using std::uint8_t;
@@ -72,7 +72,7 @@ export {
     using std::remove_pointer_t;
 };
 
-/* --- basic containers --- */
+/* --- containers --- */
 export {
     /* --- span --- */
     template <typename T>
@@ -112,6 +112,14 @@ export {
     concept sequence = span<T> && requires(T x, size_t i, element_t<T> e) {
         { x[i] }     -> convertible_to<element_t<T> &>;
         x[i] = e;
+    };
+};
+
+/* --- functions --- */
+export {
+    template <class F, class X>
+    concept predicate = requires (F f, X x) {
+        { f(x) } -> boolean_testable;
     };
 };
 

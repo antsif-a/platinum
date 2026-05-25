@@ -69,7 +69,7 @@ public:
         delete[] elements;
     }
 
-    size_t count() {
+    size_t count() const {
         return size;
     }
 
@@ -163,33 +163,18 @@ public:
 };
 
 export {
-    template <typename T, size_t N>
-    size_t size(array<T, N> &) {
-        return N;
+    template <typename Container>
+    constexpr auto size(const Container& c) -> decltype(c.count()) {
+        return c.count();
     }
 
-    template <typename T, size_t N>
-    T * data(array<T, N> &arr) {
-        return arr.data();
+    template <typename Container>
+    constexpr auto data(Container& c) -> decltype(c.data()) {
+        return c.data();
     }
 
-    template <typename T>
-    size_t size(fixed_array<T> &arr) {
-        return arr.count();
-    }
-
-    template <typename T>
-    T * data(fixed_array<T> &arr) {
-        return arr.data();
-    }
-
-    template <typename T>
-    size_t size(dynamic_array<T> &arr) {
-        return arr.count();
-    }
-
-    template <typename T>
-    T * data(dynamic_array<T> &arr) {
-        return arr.data();
+    template <typename Container>
+    constexpr auto data(const Container& c) -> decltype(c.data()) {
+        return c.data();
     }
 };

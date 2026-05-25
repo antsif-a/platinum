@@ -98,6 +98,14 @@ export struct str {
         return true;
     }
 
+    bool operator<(const str& other) const {
+        size_t n = (size < other.size) ? size : other.size;
+        for (size_t i = 0; i < n; ++i)
+            if (data[i] != other.data[i])
+                return data[i] < other.data[i];
+        return size < other.size;
+    }
+
     char operator[](size_t n) const {
         return data[n];
     }
@@ -115,20 +123,22 @@ export struct str {
     }
 };
 
-// we need these functions because .size and .data are already members
 export {
-    // now "str" is both const_sequence and const_span
-    // begin() and end() are generated automatically by template system
-    size_t       size(const str &x) { return x.size; };
-    const char * data(const str &x) { return x.data; };
+    template <typename View>
+        requires requires(const View& v) { v.size; }
+    constexpr auto size(const View &x) -> size_t {
+        return x.size;
+    }
 
-    // same for other views
-    void * data(const buffer &x) { return x.data; };
-    size_t size(const buffer &x) { return x.size; };
-    const void * data(const const_buffer &x) { return x.data; };
-    size_t       size(const const_buffer &x) { return x.size; };
-    template <class T> T *    data(const view<T> &x) { return x.data; };
-    template <class T> size_t size(const view<T> &x) { return x.size; };
-    template <class T> const T * data(const const_view<T> &x) { return x.data; };
-    template <class T> size_t    size(const const_view<T> &x) { return x.size; };
+    template <typename View>
+        requires requires(const View& v) { v.data; }
+    constexpr auto data(View &x)       -> decltype(x.data) {
+        return x.data;
+    }
+
+    template <typename View>
+        requires requires(const View& v) { v.data; }
+    constexpr auto data(const View &x) -> decltype(x.data) {
+        return x.data;
+    }
 };

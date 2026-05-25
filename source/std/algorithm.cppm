@@ -5,26 +5,26 @@ import std.types;
 import std.result;
 
 export {
-    enum struct error {
-        not_found
-    };
-
-    template <class T, class E>
-    result<size_t, error> find(T x, E element) requires const_sequence<T> {
+    result<size_t, error> find(
+        const const_sequence auto &X,
+        const element_t<decltype(X)> &x
+    ) {
         size_t i = 0;
-        while (data(x) + i != end(x)) {
-            if (x[i] == element)
+        while (data(X) + i != end(X)) {
+            if (X[i] == x)
                 return i;
             ++i;
         }
         return error::not_found;
     }
 
-    template <class T, class F>
-    result<size_t, error> find_if(T x, F pred) requires const_sequence<T> {
+    result<size_t, error> find_if(
+        const const_sequence auto &X,
+        predicate<element_t<decltype(X)>> auto condition
+    ) {
         size_t i = 0;
-        while (data(x) + i != end(x)) {
-            if (pred(x[i]))
+        while (data(X) + i != end(X)) {
+            if (condition(X[i]))
                 return i;
             ++i;
         }
@@ -32,28 +32,28 @@ export {
     }
 };
 
-template <class T>
-void quick_sort(T & a, int l, int r) requires sequence<T> {
+void quick_sort(sequence auto &A, size_t l, size_t r) {
     if (l >= r)
         return;
-    int pivot = a[(l + r) / 2];
-    int i = l, j = l, k = r;
+    auto pivot = A[(l + r) / 2];
+    size_t i = l, j = l, k = r;
+    if (l >= r || r >= size(A))
+        return;
     while (j <= k) {
-        if (a[j] < pivot) {
-            swap(a[i++], a[j++]);
-        } else if (a[j] > pivot) {
-            swap(a[j], a[k--]);
+        if (A[j] < pivot) {
+            swap(A[i++], A[j++]);
+        } else if (A[j] > pivot) {
+            swap(A[j], A[k--]);
         } else {
             j++;
         }
     }
-    quick_sort(a, l, i - 1);
-    quick_sort(a, k + 1, r);
+    quick_sort(A, l, i - 1);
+    quick_sort(A, k + 1, r);
 }
 
 export {
-    template <class T>
-    void sort(T & x) requires sequence<T> {
+    void sort(sequence auto & x) {
         quick_sort(x, 0, size(x) - 1);
     }
 };

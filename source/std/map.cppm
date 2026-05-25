@@ -41,6 +41,10 @@ export {
             V value;
         };
 
+        enum struct error {
+            not_found
+        };
+
         flat_map(size_t capacity):
             entries(capacity) {}
 
@@ -54,6 +58,13 @@ export {
 
         entry * data() {
             return ::data(entries);
+        }
+
+        result<const V *, error> get(const K &key) const {
+            auto index = find_if(entries, [&key] (const entry &p) { return p.key == key; });
+            if (!index)
+                return error::not_found;
+            return &entries[index.value].value;
         }
 
         void put(const K &key, const V &value) {

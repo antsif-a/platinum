@@ -1,6 +1,6 @@
 #include <stddef.h>
 
-#define HEAP_CAPACITY 1024 * 1024
+#define HEAP_CAPACITY 4 * 1024 * 1024
 
 char heap[HEAP_CAPACITY];
 static char * heap_end = heap + HEAP_CAPACITY;

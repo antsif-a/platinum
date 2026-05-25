@@ -4,6 +4,7 @@ import std.view;
 import std.io;
 import std.types;
 import std.algorithm;
+import std.format;
 
 size_t envc(char * envp[]) {
     size_t i = 0;
@@ -14,8 +15,8 @@ size_t envc(char * envp[]) {
 
 int main(int, char * [], char * envp[]) {
     flat_map<str, str> env(envc(envp));
-    while (env.size() != env.capacity()) {
-        str entry = str(envp[size(env)]);
+    for (size_t i = 0; envp[i] != nullptr; ++i) {
+        str entry = str(envp[i]);
         int eq_index = find(entry, '=').or_else(-1);
         if (eq_index == -1)
             continue;
@@ -26,6 +27,6 @@ int main(int, char * [], char * envp[]) {
         );
     }
 
-    for (auto& p : env)
-        println(p.key, " = ", p.value);
+
+    println("user = ", * env.get("USER").expect("no value"));
 }
